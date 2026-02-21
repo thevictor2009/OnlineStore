@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Админ-панель')">
+   <link rel="stylesheet" href="/css/style.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <style>
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-secondary {
+    background: #e5e7eb;
+    color: #374151;
+}
+</style>
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <h1 style="margin: 2rem 0 1rem;">Админ-панель</h1>
+    
+    <!-- Карточки статистики -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Общая выручка</div>
+            <div class="stat-value" th:text="${#numbers.formatDecimal(stats.totalRevenue, 1, 2)} + ' руб.'">0 руб.</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Всего заказов</div>
+            <div class="stat-value" th:text="${stats.totalOrders}">0</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Всего товаров</div>
+            <div class="stat-value" th:text="${stats.totalProducts}">0</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Всего пользователей</div>
+            <div class="stat-value" th:text="${stats.totalUsers}">0</div>
+        </div>
+        
+        <div class="stat-card" th:classappend="${stats.pendingOrders > 0} ? 'low-stock' : ''">
+            <div class="stat-label">Ожидают обработки</div>
+            <div class="stat-value" th:text="${stats.pendingOrders}">0</div>
+        </div>
+        
+        <div class="stat-card" th:classappend="${stats.lowStockProducts > 0} ? 'low-stock' : ''">
+            <div class="stat-label">Товаров мало на складе (меньше 10 единиц)</div>
+            <div class="stat-value" th:text="${stats.lowStockProducts}">0</div>
+        </div>
+    </div>
+    
+    <!-- Навигация по админке -->
+    <div class="admin-nav">
+        <a th:href="@{/admin/products}" class="admin-card">
+            <i class="fas fa-box"></i>
+            <h3>Товары</h3>
+            <p>Управление товарами магазина</p>
+        </a>
+        
+        <a th:href="@{/admin/orders}" class="admin-card">
+            <i class="fas fa-shopping-bag"></i>
+            <h3>Заказы</h3>
+            <p>Управление заказами</p>
+        </a>
+        
+        <a th:href="@{/admin/users}" class="admin-card">
+            <i class="fas fa-users"></i>
+            <h3>Пользователи</h3>
+            <p>Управление пользователями</p>
+        </a>
+        
+        <a th:href="@{/admin/stats}" class="admin-card">
+            <i class="fas fa-chart-bar"></i>
+            <h3>Статистика</h3>
+            <p>Аналитика и отчеты</p>
+        </a>
+    </div>
+    
+
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('${product.name} - Админка')"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container" th:if="${product != null}">
+    <h1 style="margin: 2rem 0 1rem;">Просмотр товара: <span th:text="${product.name}"></span></h1>
+    
+    <div style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
+            <div>
+                <img th:src="${product.imageUrl != null && !product.imageUrl.isEmpty()} ? 
+                              ${product.imageUrl} : '/images/default-product.jpg'" 
+                     style="width: 100%; height: 300px; object-fit: cover; border-radius: 0.5rem;">
+            </div>
+            
+            <div>
+                <h2 th:text="${product.name}"></h2>
+                <p th:text="${product.description}" style="color: #6b7280; margin: 1rem 0;"></p>
+                
+                <div style="margin: 1.5rem 0;">
+                    <div><strong>Цена:</strong> <span th:text="${#numbers.formatDecimal(product.price, 1, 2)} + ' руб.'"></span></div>
+                    <div><strong>Количество:</strong> <span th:text="${product.quantity}"></span></div>
+                    <div><strong>Категория:</strong> <span th:text="${product.category?.name ?: 'Без категории'}"></span></div>
+                    <div><strong>ID:</strong> <span th:text="${product.id}"></span></div>
+                    <div><strong>Создан:</strong> <span th:text="${#temporals.format(product.createdAt, 'dd.MM.yyyy HH:mm')}"></span></div>
+                    <div><strong>Обновлен:</strong> <span th:text="${#temporals.format(product.updatedAt, 'dd.MM.yyyy HH:mm')}"></span></div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </a>
+                    <a th:href="@{/products/{id}(id=${product.id})}" class="btn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Публичная страница
+                    </a>
+                    <a th:href="@{/admin/products}" class="btn">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Статистика - Админка')">
+    
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <h1 style="margin: 2rem 0 1rem;">Статистика магазина</h1>
+    
+    <!-- Основная статистика -->
+    <div class="stat-row">
+        <div style="background-color: #76fbcf;" class="stat-card">
+            <h3 style="margin-bottom: 1rem; color: #10b981;">Финансы</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #10b981;">
+                <span th:text="${#numbers.formatDecimal(stats.totalRevenue, 1, 2)}">0</span> руб.
+            </div>
+            <p style="font-weight: bold; color: #10b981;">Общая выручка</p>
+        </div>
+        
+        <div style="background-color: #8983e4;" class="stat-card">
+            <h3 style="margin-bottom: 1rem; color: #4f46e5">Заказы</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #4f46e5;">
+                <span th:text="${stats.totalOrders}">0</span>
+            </div>
+            <p style="font-weight: bold; color: #4f46e5">Всего заказов</p>
+        </div>
+        
+        <div style="background-color: #f3c77c;" class="stat-card">
+            <h3 style="margin-bottom: 1rem; color: #f59e0b">Пользователи</h3>
+            <div style="font-size: 1.5rem; font-weight: bold; color: #f59e0b;">
+                <span th:text="${stats.totalUsers}">0</span>
+            </div>
+            <p style="font-weight: bold; color: #f59e0b">Зарегистрировано</p>
+        </div>
+    </div>
+    
+    <!-- Статистика по категориям -->
+    <div  style="background-color: #7c7c7c" class="stat-card" th:if="${categoryStats != null && !categoryStats.isEmpty()}">
+        <h3 style="margin-bottom: 1rem; color: #374151;;">Товары по категориям</h3>
+        <div th:each="entry : ${categoryStats}">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #374151;">
+                <span th:text="${entry.key}"></span>
+                <span th:text="${entry.value} + ' товаров'"></span>
+            </div>
+            <div style="height: 8px; background-color: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                <div th:style="'width: ' + ${entry.value * 10} + '%; height: 100%; background: #4f46e5;'"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Последние заказы -->
+    <div class="stat-card" style="margin-top: 2rem; color: #374151; background-color: #7c7c7c">
+        <h3 style="margin-bottom: 1rem;">Последние заказы</h3>
+        <div th:if="${recentOrders != null && !recentOrders.isEmpty()}">
+            <table class="data-table" style="width: 100%; background-color: #7c7c7c">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e5e7eb;">
+                        <th class="data-table th" style="padding: 0.75rem; text-align: center;">Номер</th>
+                        <th class="data-table th" style="padding: 0.75rem; text-align: left;">Сумма</th>
+                        <th class="data-table th" style="padding: 0.75rem; text-align: left;">Статус</th>
+                        <th class="data-table th" style="padding: 0.75rem; text-align: left;">Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${recentOrders}" style="border-bottom: 1px solid #e5e7eb;">
+                        <td class="data-table td" style="padding: 0.75rem;">
+                            <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.orderNumber}"></a>
+                        </td>
+                        <td class="data-table td" style="padding: 0.75rem;" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' руб.'"></td>
+                        <td class="data-table td" style="padding: 0.75rem;">
+                           <span th:class="${'badge '} + 
+                                ${order.status.name() == 'PENDING' ? 'badge-warning' : 
+                                order.status.name() == 'DELIVERED' ? 'badge-success' : 
+                               'badge-secondary'}"
+                                th:text="${order.status}"></span>
+                        </td>
+                        <td class="data-table td" style="padding: 0.75rem;" th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${recentOrders == null || recentOrders.isEmpty()}" class="chart-placeholder">
+            Нет данных о заказах
+        </div>
+    </div>
+    
+    <!-- Графики (заглушки) -->
+    <div class="stat-row">
+        <div class="stat-card">
+            <h3 style="margin-bottom: 1rem; color: #374151;">Продажи по дням</h3>
+            <div class="chart-placeholder" style="color: #374151">График продаж</div>
+        </div>
+        
+        <div class="stat-card">
+            <h3 style="margin-bottom: 1rem; color: #374151;">Популярные товары</h3>
+            <div class="chart-placeholder" style="color: #374151">График популярности</div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

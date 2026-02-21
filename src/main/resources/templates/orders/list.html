@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Мои заказы')"></head>
+<body>
+	<header th:replace="fragments/header :: header"></header>
+
+	<div class="container">
+		<h1 style="margin: 2rem 0 1rem;">
+			<i class="fas fa-list"></i> Мои заказы
+		</h1>
+
+		<!-- Сообщения -->
+		<div th:if="${success}"
+			style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+			<i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+		</div>
+
+		<div th:if="${error}"
+			style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0;">
+			<i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+		</div>
+
+		<!-- Пустой список -->
+		<div th:if="${orders == null or orders.empty}"
+			style="text-align: center; padding: 4rem 0; background: #f9fafb; border-radius: 0.5rem;">
+			<div style="font-size: 4rem; color: #d1d5db; margin-bottom: 1rem;">
+				<i class="fas fa-box-open"></i>
+			</div>
+			<h2 style="margin-bottom: 1rem; color: #6b7280;">У вас нет
+				заказов</h2>
+			<p style="margin-bottom: 2rem; color: #9ca3af;">Оформите ваш
+				первый заказ в корзине</p>
+			<a th:href="@{/products}" class="btn btn-primary"> <i
+				class="fas fa-box"></i> Перейти к товарам
+			</a>
+		</div>
+
+		<!-- Список заказов -->
+		<div th:if="${orders != null and !orders.empty}">
+			<div style="display: grid; gap: 1rem;">
+				<div th:each="order : ${orders}"
+					style="background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+
+					<!-- Заголовок заказа -->
+					<div
+						style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+						<div>
+							<h3 style="margin: 0 0 0.5rem 0;">
+								Заказ #<span th:text="${order.orderNumber}"></span>
+							</h3>
+							<p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
+								<i class="fas fa-calendar"></i> <span
+									th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+							</p>
+						</div>
+
+						<div>
+							<span th:switch="${order.status}"
+								style="padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500;">
+								<span th:case="PENDING"
+								style="background: #fef3c7; color: #92400e;"> <i
+									class="fas fa-clock"></i> Ожидает
+							</span> <span th:case="PROCESSING"
+								style="background: #dbeafe; color: #1e40af;"> <i
+									class="fas fa-cog"></i> Обработка
+							</span> <span th:case="SHIPPED"
+								style="background: #e0f2fe; color: #0c4a6e;"> <i
+									class="fas fa-truck"></i> Отправлен
+							</span> <span th:case="DELIVERED"
+								style="background: #d1fae5; color: #065f46;"> <i
+									class="fas fa-check-circle"></i> Доставлен
+							</span> <span th:case="CANCELLED"
+								style="background: #fee2e2; color: #991b1b;"> <i
+									class="fas fa-times-circle"></i> Отменен
+							</span>
+							</span>
+						</div>
+					</div>
+
+					<!-- Информация о заказе -->
+					<div
+						style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+						<div>
+							<p style="margin: 0 0 0.5rem 0; color: #6b7280;">
+								<i class="fas fa-map-marker-alt"></i> <span
+									th:text="${order.shippingAddress}"></span>
+							</p>
+							<p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
+								Товаров: <span
+									th:text="${order.items != null ? order.items.size() : 0}"></span>
+								позиций
+							</p>
+						</div>
+
+						<div style="text-align: right;">
+							<div
+								style="font-size: 1.25rem; font-weight: bold; color: #4f46e5;">
+								<span
+									th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' руб.'"></span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Кнопки действий -->
+					<div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+						<a th:href="@{'/orders/' + ${order.id}}" class="btn"
+							style="flex: 1;"> <i class="fas fa-eye"></i> Подробнее
+						</a>
+
+						<form
+							th:if="${order.status.name() == 'PENDING' or order.status.name() == 'PROCESSING'}"
+							th:action="@{'/orders/' + ${order.id} + '/cancel'}" method="post"
+							style="flex: 1;">
+							<input type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+							<button type="submit" class="btn btn-danger" style="width: 100%;"
+								onclick="return confirm('Отменить заказ #' + $(this).closest('.order-card').
+										find('.order-number').text() + '?')">
+								<i class="fas fa-times"></i> Отменить
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Кнопка возврата -->
+		<div style="margin-top: 2rem;">
+			<a th:href="@{/}" class="btn"> <i class="fas fa-home"></i> На
+				главную
+			</a>
+		</div>
+	</div>
+
+	<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

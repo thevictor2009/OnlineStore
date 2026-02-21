@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Заказы - Админка')">
+    <style>
+        .status-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .status-btn:hover {
+            background: #f9fafb;
+        }
+        
+        .status-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <h1 style="margin: 2rem 0 1rem;">Управление заказами</h1>
+    
+    <!-- Фильтр по статусу -->
+    <div class="status-filter">
+        <a th:href="@{/admin/orders}" 
+           th:classappend="${status == null} ? 'status-btn active' : 'status-btn'">
+            Все заказы
+        </a>
+        <th:block th:each="orderStatus : ${statuses}">
+            <a th:href="@{/admin/orders(status=${orderStatus})}" 
+               th:classappend="${status == orderStatus.name()} ? 'status-btn active' : 'status-btn'"
+               th:text="${orderStatus}">
+            </a>
+        </th:block>
+    </div>
+    
+    <div style="background: white; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <table style="width: 100%;">
+            <thead>
+                <tr style="background-color: #f9fafb;">
+                    <th style="padding: 1rem; text-align: left;">Номер</th>
+                    <th style="padding: 1rem; text-align: left;">Пользователь</th>
+                    <th style="padding: 1rem; text-align: left;">Статус</th>
+                    <th style="padding: 1rem; text-align: left;">Сумма</th>
+                    <th style="padding: 1rem; text-align: left;">Дата</th>
+                    <th style="padding: 1rem; text-align: left;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${orders}" style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 1rem;">
+                        <a th:href="@{/orders/{id}(id=${order.id})}" th:text="${order.orderNumber}"></a>
+                    </td>
+                    <td style="padding: 1rem;" th:text="${order.appUser.username}"></td>
+                    <td style="padding: 1rem;">
+                        <span th:if="${order.status.name() == 'PENDING'}"
+                              class="badge badge-warning" th:text="${order.status}"></span>
+                       <span th:if="${order.status.name() == 'DELIVERED'}" 
+                              class="badge badge-success" th:text="${order.status}"></span>
+                       <span th:if="${order.status.name() == 'CANCELLED'}" 
+                              class="badge badge-danger" th:text="${order.status}"></span>
+                       <span th:unless="${order.status.name() == 'PENDING' or 
+                               order.status.name() == 'DELIVERED' or 
+                               order.status.name() == 'CANCELLED'}" 
+                               class="badge badge-secondary" th:text="${order.status}"></span>
+                    </td>
+                    <td style="padding: 1rem;" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' руб.'"></td>
+                    <td style="padding: 1rem;" th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td style="padding: 1rem;">
+                        <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-sm">
+                            <i class="fas fa-eye"></i> Просмотр
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+
+<style>
+.badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+</style>
+</body>
+</html>

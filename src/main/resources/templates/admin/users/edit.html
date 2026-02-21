@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Редактирование пользователя')"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="margin: 2rem 0 1rem;">Редактирование пользователя</h1>
+        
+        <div th:if="${param.success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i> Изменения сохранены успешно
+        </div>
+        
+        <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" 
+              th:object="${user}" method="post" 
+              style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            
+            <div class="form-group">
+                <label class="form-label">Имя пользователя</label>
+                <input type="text" th:field="*{username}" class="form-input" required readonly
+                       style="background-color: #f9fafb;">
+                <small style="color: #6b7280; font-size: 0.875rem;">Имя пользователя нельзя изменить</small>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Имя</label>
+                <input type="text" th:field="*{firstName}" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Фамилия</label>
+                <input type="text" th:field="*{lastName}" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Телефон</label>
+                <input type="text" th:field="*{phoneNumber}" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Адрес</label>
+                <textarea th:field="*{address}" class="form-input" rows="2"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Роль</label>
+                <select th:field="*{role}" class="form-input">
+                    <option th:each="role : ${roles}" 
+                            th:value="${role}"
+                            th:text="${role}"
+                            th:selected="${user.role == role}">
+                    </option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Новый пароль (оставьте пустым, чтобы не менять)</label>
+                <input type="password" name="newPassword" class="form-input" placeholder="Новый пароль">
+                <small style="color: #6b7280; font-size: 0.875rem;">Минимум 6 символов</small>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a th:href="@{/admin/users}" class="btn">Отмена</a>
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

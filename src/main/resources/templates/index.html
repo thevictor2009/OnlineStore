@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Главная')"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div style="text-align: center; padding: 4rem 0;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: #4f46e5;">
+        Добро пожаловать в наш магазин!
+    </h1>
+    <p style="font-size: 1.25rem; margin-bottom: 2rem; color: #6b7280;">
+        Лучшие товары по доступным ценам. Быстрая доставка, гарантия качества.
+    </p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a th:href="@{/products}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+            <i class="fas fa-box"></i> Смотреть товары
+        </a>
+        <a th:href="@{/cart}" class="btn" style="padding: 0.75rem 2rem;">
+            <i class="fas fa-shopping-cart"></i> Корзина
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <h2 style="margin: 2rem 0 1rem; text-align: center;">Популярные товары</h2>
+    
+    <div th:if="${featuredProducts != null and !featuredProducts.empty}" 
+         style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin: 2rem 0;">
+        
+        <div th:each="product : ${featuredProducts}" 
+             style="background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            
+            <div style="height: 150px; background: #f3f4f6; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <i class="fas fa-box" style="font-size: 2rem; color: #9ca3af;"></i>
+            </div>
+            
+            <h3 style="margin-bottom: 0.5rem; font-size: 1.125rem;" th:text="${product.name}"></h3>
+            
+            <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;" 
+               th:text="${product.description ?: 'Описание отсутствует'}"></p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-weight: bold; color: #4f46e5;" 
+                      th:text="${#numbers.formatDecimal(product.price, 1, 2)} + ' руб.'"></span>
+                
+                <span th:if="${product.quantity > 0}" 
+                      style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem;">
+                    В наличии
+                </span>
+                <span th:unless="${product.quantity > 0}" 
+                      style="background: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem;">
+                    Нет в наличии
+                </span>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem;">
+                <a th:href="@{'/products/' + ${product.id}}" class="btn btn-primary" style="flex: 1; text-align: center;">
+                    Подробнее
+                </a>
+                
+                <form th:action="@{'/cart/add/' + ${product.id}}" method="post" th:if="${product.quantity > 0}" style="flex: 1;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn" style="width: 100%;">
+                        В корзину
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${featuredProducts == null or featuredProducts.empty}" 
+         style="text-align: center; padding: 2rem; background: #f9fafb; border-radius: 0.5rem;">
+        <i class="fas fa-box-open" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+        <p style="color: #6b7280;">Товары скоро появятся</p>
+    </div>
+    
+    <div style="text-align: center; margin: 3rem 0;">
+        <a th:href="@{/products}" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+            Посмотреть все товары
+        </a>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

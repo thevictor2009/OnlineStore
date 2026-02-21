@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Добавить товар')"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="margin: 2rem 0 1rem;">Добавить новый товар</h1>
+        
+        <form th:action="@{/admin/products/create}" method="post" 
+              style="background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            
+            <div class="form-group">
+                <label class="form-label">Название товара *</label>
+                <input type="text" name="name" class="form-input" required 
+                       placeholder="Введите название товара">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Описание</label>
+                <textarea name="description" class="form-input" rows="3" 
+                          placeholder="Описание товара"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Цена (руб.) *</label>
+                <input type="number" name="price" class="form-input" 
+                       step="0.01" min="0" required placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Количество на складе *</label>
+                <input type="number" name="quantity" class="form-input" 
+                       min="0" required value="0">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">URL изображения</label>
+                <input type="text" name="imageUrl" class="form-input" 
+                       placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Категория</label>
+                <select name="category.id" class="form-input">
+                    <option value="">-- Выберите категорию --</option>
+                    <option th:each="category : ${categories}" 
+                            th:value="${category.id}"
+                            th:text="${category.name}">
+                    </option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a th:href="@{/admin/products}" class="btn">Отмена</a>
+                <button type="submit" class="btn btn-primary">Создать товар</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

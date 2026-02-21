@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Товары')}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="container">
+    <h1 style="margin: 2rem 0 1rem;" th:text="${title}">Все товары</h1>
+    
+    <p th:if="${category != null}" style="margin-bottom: 2rem; color: #6b7280;" 
+       th:text="${category.description}">Описание категории</p>
+       
+    
+    <div th:if="${products != null and !products.empty}" class="products-grid">
+        <div class="product-card" th:each="product : ${products}">
+             <div>
+                <img class="product-image" th:src="${product.imageUrl != null && !product.imageUrl.isEmpty()} ? 
+                              ${product.imageUrl} : '/images/default-product.jpg'">
+                     <!--style="width: 300px; height: 100%; object-fit: contein; border-radius: 0.5rem;">-->
+            </div>
+            <div class="product-info">
+                <h3 class="product-title" th:text="${product.name}">Название товара</h3>
+                <p class="product-description" th:text="${product.description}">Описание товара</p>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span class="product-price" th:text="${#numbers.formatDecimal(product.price, 1, 2)} + ' руб.'">0 руб.</span>
+                    <span th:class="${product.quantity > 0} ? 'quantity-badge' : 'quantity-badge btn-danger'" 
+                          th:text="${product.quantity > 0} ? 'В наличии: ' + ${product.quantity} : 'Нет в наличии'">
+                        В наличии
+                    </span>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <a th:href="@{'/products/' + ${product.id}}" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-eye"></i> Подробнее
+                    </a>
+                    
+                    <form th:action="@{'/cart/add/' + ${product.id}}" method="post" th:if="${product.quantity > 0}" style="flex: 1;">
+                        <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                            <i class="fas fa-cart-plus"></i> В корзину
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${products == null or products.empty}" style="text-align: center; padding: 3rem;">
+        <i class="fas fa-box-open" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+        <h2 style="margin-bottom: 1rem;">Товары не найдены</h2>
+        <p>В магазине пока нет товаров</p>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

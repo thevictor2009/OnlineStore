@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('Пользователи - Админка')">
+    <style>
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .role-admin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .role-customer {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <h1 style="margin: 2rem 0 1rem;">Управление пользователями</h1>
+    
+    <div th:if="${param.success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Изменения сохранены успешно
+    </div>
+    
+    <div style="background: white; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <table style="width: 100%;">
+            <thead>
+                <tr style="background-color: #f9fafb;">
+                    <th style="padding: 1rem; text-align: left;">ID</th>
+                    <th style="padding: 1rem; text-align: left;">Логин</th>
+                    <th style="padding: 1rem; text-align: left;">Email</th>
+                    <th style="padding: 1rem; text-align: left;">Имя</th>
+                    <th style="padding: 1rem; text-align: left;">Роль</th>
+                    <th style="padding: 1rem; text-align: left;">Дата регистрации</th>
+                    <th style="padding: 1rem; text-align: left;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}" style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 1rem;" th:text="${user.id}"></td>
+                    <td style="padding: 1rem;" th:text="${user.username}"></td>
+                    <td style="padding: 1rem;" th:text="${user.email}"></td>
+                    <td style="padding: 1rem;" th:text="${user.firstName + ' ' + user.lastName}"></td>
+                    <td style="padding: 1rem;">
+                        <span th:class="${user.role == 'ROLE_ADMIN'} ? 'role-badge role-admin' : 'role-badge role-customer'"
+                              th:text="${user.role == 'ROLE_ADMIN'} ? 'Админ' : 'Покупатель'">
+                        </span>
+                    </td>
+                    <td style="padding: 1rem;" th:text="${#temporals.format(user.createdAt, 'dd.MM.yyyy')}"></td>
+                    <td style="padding: 1rem;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" 
+                                  onsubmit="return confirm('Удалить пользователя?')">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

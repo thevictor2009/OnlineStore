@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head('${product.name}')">
+    <style>
+        .product-detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .product-detail-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .product-image-large {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .product-info-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .product-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            color: #4f46e5;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+        
+        .product-meta {
+            display: flex;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+        }
+        
+        .meta-item {
+            text-align: center;
+        }
+        
+        .meta-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            display: block;
+        }
+        
+        .meta-value {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #111827;
+        }
+        
+        .add-to-cart-section {
+            margin-top: 2rem;
+        }
+        
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quantity-input {
+            width: 80px;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container">
+    <!-- Хлебные крошки -->
+    <div style="margin: 1rem 0;">
+        <a th:href="@{/}">Главная</a> &gt; 
+        <a th:href="@{/products}">Товары</a> &gt; 
+        <span th:text="${product.name}"></span>
+    </div>
+    
+    <!-- Основной контент -->
+    <div th:if="${product != null}" class="product-detail-container">
+        <!-- Левая часть: Изображение -->
+        <div>
+            <img th:src="${product.imageUrl != null && !product.imageUrl.isEmpty()} ? 
+                          ${product.imageUrl} : '/images/default-product.jpg'" 
+                 alt="Изображение товара" class="product-image-large">
+            
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <button onclick="zoomImage()" class="btn">
+                    <i class="fas fa-search-plus"></i> Увеличить
+                </button>
+                <button onclick="shareProduct()" class="btn">
+                    <i class="fas fa-share"></i> Поделиться
+                </button>
+            </div>
+        </div>
+        
+        <!-- Правая часть: Информация -->
+        <div class="product-info-card">
+            <h1 class="product-title" th:text="${product.name}"></h1>
+            
+            <!-- Мета-информация -->
+            <div class="product-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Категория</span>
+                    <span class="meta-value" th:text="${product.category?.name ?: 'Без категории'}"></span>
+                </div>
+                
+                <div class="meta-item">
+                    <span class="meta-label">На складе</span>
+                    <span class="meta-value" th:text="${product.quantity}"></span>
+                </div>
+                
+                <div class="meta-item">
+                    <span class="meta-label">Код товара</span>
+                    <span class="meta-value" th:text="${product.id}"></span>
+                </div>
+            </div>
+            
+            <!-- Цена -->
+            <div class="product-price" th:text="${#numbers.formatDecimal(product.price, 1, 2)} + ' руб.'"></div>
+            
+            <!-- Статус наличия -->
+            <div th:if="${product.quantity > 0}" style="color: #10b981; margin: 1rem 0;">
+                <i class="fas fa-check-circle"></i> В наличии
+            </div>
+            <div th:if="${product.quantity <= 0}" style="color: #ef4444; margin: 1rem 0;">
+                <i class="fas fa-times-circle"></i> Нет в наличии
+            </div>
+            
+            <!-- Описание -->
+            <div style="margin: 1.5rem 0;">
+                <h3 style="margin-bottom: 0.5rem;">Описание</h3>
+                <p th:text="${product.description ?: 'Описание отсутствует'}" 
+                   style="line-height: 1.6; color: #4b5563;"></p>
+            </div>
+            
+            <!-- Форма добавления в корзину -->
+            <div class="add-to-cart-section" th:if="${#authorization.expression('isAuthenticated()') && product.quantity > 0}">
+                <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
+                    <div class="quantity-control">
+                        <label for="quantity">Количество:</label>
+                        <input type="number" id="quantity" name="quantity" 
+                               class="quantity-input" value="1" min="1" 
+                               th:max="${product.quantity}">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">
+                        <i class="fas fa-cart-plus"></i> Добавить в корзину
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Сообщения для неавторизованных или если товара нет -->
+            <div th:unless="${#authorization.expression('isAuthenticated()')}" 
+                 style="background: #fef3c7; padding: 1rem; border-radius: 0.375rem; margin-top: 1rem;">
+                <i class="fas fa-info-circle"></i> 
+                <a th:href="@{/login}">Войдите</a>, чтобы добавить товар в корзину
+            </div>
+            
+            <div th:if="${product.quantity <= 0}" 
+                 style="background: #fee2e2; padding: 1rem; border-radius: 0.375rem; margin-top: 1rem;">
+                <i class="fas fa-exclamation-triangle"></i> Товар временно отсутствует на складе
+            </div>
+            
+            <!-- Кнопки действий -->
+            <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1 rem;">
+                <a th:href="@{/products}" class="btn" style="flex: 1;">
+                    <i class="fas fa-arrow-left"></i> Назад к товарам
+                </a>
+                
+                <!-- Ссылка на админку для администраторов -->
+                <th:block th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" 
+                       class="btn btn-secondary" style="flex: 1;">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Если товар не найден -->
+    <div th:if="${product == null}" style="text-align: center; padding: 4rem 0;">
+        <div style="font-size: 4rem; color: #d1d5db; margin-bottom: 1rem;">
+            <i class="fas fa-search"></i>
+        </div>
+        <h2 style="margin-bottom: 1rem; color: #6b7280;">Товар не найден</h2>
+        <a th:href="@{/products}" class="btn btn-primary">Вернуться к товарам</a>
+    </div>
+</div>
+
+<script>
+function zoomImage() {
+    const img = document.querySelector('.product-image-large');
+    img.style.transform = img.style.transform === 'scale(1.5)' ? 'scale(1)' : 'scale(1.5)';
+    img.style.transition = 'transform 0.3s ease';
+}
+
+function shareProduct() {
+    const productName = document.querySelector('.product-title').textContent;
+    const url = window.location.href;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: productName,
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Ссылка скопирована в буфер обмена!');
+        });
+    }
+}
+</script>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+</body>
+</html>

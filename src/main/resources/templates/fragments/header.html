@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">  
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Магазин'">Магазин</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+<header>
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/}" class="logo">
+                <img src="/images/logo.png"> SmartCore<!--class="fa-solid fa-microchip"  -->
+            </a>
+            
+            <div class="nav-links">
+                <!-- Всегда показываем -->
+                <a th:href="@{/}" class="nav-link">
+                    <i class="fas fa-home"></i> Главная
+                </a>
+                <!-- Выпадающее меню -->
+                 <div class="dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">
+                        Товары <i class="fas fa-chevron-down" style="font-size: 0.8rem; margin-left: 0.3rem;"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a th:href="@{/products}" class="dropdown-item">
+                            <i class="fas fa-list"></i> Все товары
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <th:block th:each="category : ${categories}">
+                            <a th:href="@{/products/category/{id}(id=${category.id})}" class="dropdown-item">
+                                <i class="fas fa-tag"></i> 
+                                <span th:text="${category.name}">Категория</span>
+                                <span class="category-count" th:text="'(' + ${category.products.size()} + ')'"></span>
+                            </a>
+                        </th:block>
+                    </div>
+                </div>
+                <!--  <a th:href="@{/products}" class="nav-link">
+                    <i class="fas fa-box"></i> Товары
+                </a>-->
+                <a th:href="@{/cart}" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i> Корзина
+                    <span sec:authorize="isAuthenticated()" 
+                          th:if="${cartItemCount > 0}" 
+                          class="cart-count" th:text="${cartItemCount}">0</span>
+                </a>
+                <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                   <a th:href="@{/admin}" class="nav-link" style="color: #ef4444;">
+                        <i class="fas fa-crown"></i> Админка
+                   </a>
+                </div>
+                <!-- Для АВТОРИЗОВАННЫХ пользователей -->
+                <div sec:authorize="isAuthenticated()">  <!-- ИЗМЕНИЛИ -->
+                    <a th:href="@{/orders}" class="nav-link">
+                        <i class="fas fa-list"></i> Заказы
+                    </a>
+                   
+                    <!-- Вывод имени пользователя -->
+                    <span class="nav-link" style="color: #4f46e5;">
+                        <i class="fas fa-user"></i>
+                        <span sec:authentication="name">Имя</span>
+                    </span>
+                    
+                    <!-- Форма выхода -->
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="nav-link" style="background: none; border: none; cursor: pointer; padding: 0;">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Для НЕавторизованных пользователей -->
+                <div sec:authorize="!isAuthenticated()">  
+                    <a th:href="@{/login}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                    <a th:href="@{/register}" class="nav-header-btn"><!-- btn btn-primary -->
+                        <i class="fas fa-user-plus"></i> Регистрация
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="container">
