@@ -1,0 +1,13 @@
+# render.yaml
+services:
+  - type: web
+    name: onlinestore
+    runtime: java
+    plan: free
+    buildCommand: ./mvnw clean package
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
